@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
+import { AuthProvider } from "@/context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import About from "./pages/About";
@@ -13,8 +14,8 @@ import OrganizerDashboard from "./pages/OrganizerDashboard";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import Profile from "./pages/Profile";
 
-
 const App = () => (
+   <AuthProvider>
   <TooltipProvider>
     <Toaster />
     <BrowserRouter>
@@ -33,6 +34,7 @@ const App = () => (
       </Routes>
     </BrowserRouter>
   </TooltipProvider>
+  </AuthProvider>
 );
 
 export default App;
