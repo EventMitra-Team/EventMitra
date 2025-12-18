@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
       name: userData.name || userData.email.split("@")[0],
       avatar: null,
       phone: userData.phone || "",
-      role: userData.email.includes("organizer") || userData.email.includes("admin") ? "organizer" : "attendee",
+      role: userData.role,
       joinedDate: new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" }),
     };
     setUser(userInfo);

@@ -51,6 +51,10 @@ const handleSubmit = async (e) => {
  
     // Save token
 localStorage.setItem("token", result.token);
+localStorage.setItem("role", result.user.role);
+localStorage.setItem("userId", result.user._id);
+  
+
 
 // Update Auth Context (VERY IMPORTANT)
 login({

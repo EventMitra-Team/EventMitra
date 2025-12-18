@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -16,118 +16,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const allEvents = [
-  {
-    id: 1,
-    title: "Bangalore Tech Summit 2025",
-    category: "Conference",
-    date: "Jan 15, 2025",
-    time: "9:00 AM",
-    location: "Bangalore International Exhibition Centre",
-    city: "Bangalore",
-    attendees: 2500,
-    price: 2999,
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800",
-    description: "India's largest technology conference featuring industry leaders and innovators.",
-  },
-  {
-    id: 2,
-    title: "Diwali Cultural Night",
-    category: "Festival",
-    date: "Nov 12, 2025",
-    time: "6:00 PM",
-    location: "Gateway of India Grounds",
-    city: "Mumbai",
-    attendees: 5000,
-    price: 499,
-    image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800",
-    description: "Celebrate the festival of lights with music, dance, and fireworks.",
-  },
-  {
-    id: 3,
-    title: "Wedding Expo 2025",
-    category: "Exhibition",
-    date: "Feb 20, 2025",
-    time: "10:00 AM",
-    location: "Pragati Maidan",
-    city: "Delhi",
-    attendees: 3000,
-    price: 0,
-    image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800",
-    description: "Discover the latest wedding trends, vendors, and inspirations.",
-  },
-  {
-    id: 4,
-    title: "Startup Pitch Night",
-    category: "Networking",
-    date: "Dec 28, 2024",
-    time: "5:00 PM",
-    location: "T-Hub",
-    city: "Hyderabad",
-    attendees: 500,
-    price: 1499,
-    image: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800",
-    description: "Watch startups pitch to investors and network with entrepreneurs.",
-  },
-  {
-    id: 5,
-    title: "Classical Music Festival",
-    category: "Concert",
-    date: "Jan 5, 2025",
-    time: "7:00 PM",
-    location: "Music Academy",
-    city: "Chennai",
-    attendees: 1500,
-    price: 799,
-    image: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=800",
-    description: "An evening of soulful carnatic and hindustani classical performances.",
-  },
-  {
-    id: 6,
-    title: "Yoga & Wellness Retreat",
-    category: "Workshop",
-    date: "Mar 10, 2025",
-    time: "6:00 AM",
-    location: "Parmarth Niketan Ashram",
-    city: "Rishikesh",
-    attendees: 200,
-    price: 5999,
-    image: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800",
-    description: "A transformative 3-day wellness retreat by the Ganges.",
-  },
-  {
-    id: 7,
-    title: "Food & Wine Festival",
-    category: "Festival",
-    date: "Feb 14, 2025",
-    time: "12:00 PM",
-    location: "Sula Vineyards",
-    city: "Nashik",
-    attendees: 2000,
-    price: 1999,
-    image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800",
-    description: "Sample premium wines and gourmet food from top chefs.",
-  },
-  {
-    id: 8,
-    title: "Photography Masterclass",
-    category: "Workshop",
-    date: "Jan 25, 2025",
-    time: "10:00 AM",
-    location: "India Habitat Centre",
-    city: "Delhi",
-    attendees: 100,
-    price: 3499,
-    image: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=800",
-    description: "Learn from award-winning photographers in this intensive workshop.",
-  },
-];
+
 
 const categories = ["All", "Conference", "Festival", "Workshop", "Concert", "Networking", "Exhibition"];
 const cities = ["All Cities", "Bangalore", "Mumbai", "Delhi", "Hyderabad", "Chennai", "Pune", "Kolkata"];
 const priceRanges = ["Any Price", "Free", "Under ₹1000", "₹1000 - ₹5000", "Above ₹5000"];
 
 const Events = () => {
+  const [events, setEvents] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedCity, setSelectedCity] = useState("All Cities");
@@ -135,7 +31,23 @@ const Events = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [likedEvents, setLikedEvents] = useState([]);
 
-  const filteredEvents = allEvents.filter((event) => {
+
+  useEffect(() => {
+  const fetchEvents = async () => {
+    try {
+      const res = await fetch("http://localhost:2511/api/events");
+      const data = await res.json();
+      setEvents(data);
+    } catch (error) {
+      console.error("Failed to fetch events", error);
+    }
+  };
+
+  fetchEvents();
+}, []);
+
+
+  const filteredEvents = events.filter((event) => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = activeCategory === "All" || event.category === activeCategory;
@@ -325,7 +237,8 @@ const Events = () => {
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Users className="w-4 h-4 text-primary" />
-                        {event.attendees.toLocaleString()} attending
+                       {event.soldTickets}/{event.totalTickets} attending
+
                       </div>
                     </div>
 

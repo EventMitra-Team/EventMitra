@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,54 +28,12 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-// Demo events data
-const initialEvents = [
-  {
-    id: 1,
-    title: "Diwali Night Festival 2024",
-    date: "2024-11-01",
-    time: "18:00",
-    location: "Jio World Garden, Mumbai",
-    city: "Mumbai",
-    category: "Cultural",
-    price: 1500,
-    totalTickets: 500,
-    soldTickets: 320,
-    status: "published",
-    image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=400"
-  },
-  {
-    id: 2,
-    title: "Tech Startup Summit",
-    date: "2024-12-15",
-    time: "09:00",
-    location: "HICC, Hyderabad",
-    city: "Hyderabad",
-    category: "Business",
-    price: 2500,
-    totalTickets: 300,
-    soldTickets: 180,
-    status: "published",
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400"
-  },
-  {
-    id: 3,
-    title: "Classical Music Evening",
-    date: "2024-12-20",
-    time: "19:00",
-    location: "Siri Fort Auditorium, Delhi",
-    city: "Delhi",
-    category: "Music",
-    price: 800,
-    totalTickets: 200,
-    soldTickets: 45,
-    status: "draft",
-    image: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400"
-  }
-];
+// // Demo events data
+// const initialEvents = [/
+// ];
 
 const OrganizerDashboard = () => {
-  const [events, setEvents] = useState(initialEvents);
+  const [events, setEvents] = useState([]);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
@@ -91,6 +49,37 @@ const OrganizerDashboard = () => {
     description: "",
     image: ""
   });
+
+  useEffect(() => {
+  const fetchEvents = async () => {
+    const organizerId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(
+        `http://localhost:2511/api/events/organizer/${organizerId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      const data = await res.json();
+      setEvents(data);
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Error",
+        description: "Failed to load events",
+        variant: "destructive"
+      });
+    }
+  };
+
+  fetchEvents();
+}, []);
+
 
   const categories = ["Cultural", "Music", "Business", "Sports", "Food", "Art", "Technology", "Education"];
   const cities = ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Pune", "Jaipur"];
@@ -162,54 +151,58 @@ const OrganizerDashboard = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (!formData.title || !formData.date || !formData.time || !formData.location) {
-      toast({
-        title: "Missing Fields",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (editingEvent) {
-      setEvents(events.map(event => {
-        if (event.id === editingEvent.id) {
-          return {
-            ...event,
-            ...formData,
-            price: parseInt(formData.price) || 0,
-            totalTickets: parseInt(formData.totalTickets) || 100
-          };
-        }
-        return event;
-      }));
-      toast({
-        title: "Event Updated",
-        description: "Your event has been successfully updated.",
-      });
-    } else {
-      const newEvent = {
-        id: Date.now(),
-        ...formData,
-        price: parseInt(formData.price) || 0,
-        totalTickets: parseInt(formData.totalTickets) || 100,
-        soldTickets: 0,
-        status: "draft",
-        image: formData.image || "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400"
-      };
-      setEvents([newEvent, ...events]);
-      toast({
-        title: "Event Created",
-        description: "Your event has been created as a draft.",
-      });
+  const token = localStorage.getItem("token");
+  const organizerId = localStorage.getItem("userId");
+
+  if (!token || !organizerId) {
+    toast({
+      title: "Unauthorized",
+      description: "Please login again",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:2511/api/events", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    });
+
+      const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(err.message || "Failed to Create Event");
     }
+   
+
+    setEvents([data, ...events]);
+
+    toast({
+      title: "Event Created 🎉",
+      description: "Event created successfully",
+    });
 
     setShowCreateModal(false);
     resetForm();
-  };
+
+  } catch (error) {
+    console.error(error);
+    toast({
+      title: "Error",
+      description: error.message || "Error creating event",
+      variant: "destructive",
+    });
+  }
+};
+
 
   const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },

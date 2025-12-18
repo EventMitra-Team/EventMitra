@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import cors from "cors";
 import dotenv from "dotenv";
+import eventRoutes from "./routes/eventRoutes.js";
+
 
 const app = express();
 app.use(express.json());
@@ -101,6 +103,7 @@ app.post("/login", async (req, res) => {
       message: "Login successful 🎉",
       token,
       user: {
+        _id: user._id,
         name: user.name,
         email: user.email,
         role 
@@ -111,6 +114,11 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ message: "Server error ❌" });
   }
 });
+
+
+/* ================= EVENT ROUTES ================= */
+
+app.use("/api/events", eventRoutes);
 
 /* ================= START SERVER ================= */
 app.listen(PORT, () =>
