@@ -28,10 +28,6 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-// // Demo events data
-// const initialEvents = [/
-// ];
-
 const OrganizerDashboard = () => {
   const [events, setEvents] = useState([]);
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -86,9 +82,12 @@ const OrganizerDashboard = () => {
 
   const stats = {
     totalEvents: events.length,
-    publishedEvents: events.filter(e => e.status === "published").length,
-    totalTicketsSold: events.reduce((acc, e) => acc + e.soldTickets, 0),
-    totalRevenue: events.reduce((acc, e) => acc + (e.soldTickets * e.price), 0)
+  publishedEvents: events.filter(e => e.status === "published").length,
+  totalTicketsSold: events.reduce((acc, e) => acc + (e.soldTickets || 0), 0),
+  totalRevenue: events.reduce(
+    (acc, e) => acc + ((e.soldTickets || 0) * (e.price || 0)),
+    0
+  ),
   };
 
   const resetForm = () => {
@@ -113,6 +112,9 @@ const OrganizerDashboard = () => {
   };
 
   const handleEditEvent = (event) => {
+    setActiveTab("events");
+     setEditingEvent(event);
+
     setFormData({
       title: event.title,
       date: event.date,
@@ -125,82 +127,120 @@ const OrganizerDashboard = () => {
       description: event.description || "",
       image: event.image || ""
     });
-    setEditingEvent(event);
+   
     setShowCreateModal(true);
   };
 
-  const handleDeleteEvent = (eventId) => {
-    setEvents(events.filter(e => e.id !== eventId));
+  //handle the event 
+  const handleDeleteEvent = async (eventId) => {
+  const token = localStorage.getItem("token");
+
+  try {
+    await fetch(`http://localhost:2511/api/events/${eventId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    setEvents(prev => prev.filter(e => e._id !== eventId));
+
     toast({
       title: "Event Deleted",
-      description: "The event has been successfully deleted.",
+      description: "Event deleted successfully",
     });
-  };
+  } catch (err) {
+    toast({
+      title: "Error",
+      description: "Failed to delete event",
+      variant: "destructive",
+    });
+  }
+};
+  //Toggle Publish and Unpublished
+ 
+ const handleToggleStatus = async (eventId, currentStatus) => {
+  const token = localStorage.getItem("token");
 
-  const handleToggleStatus = (eventId) => {
-    setEvents(events.map(e => {
-      if (e.id === eventId) {
-        const newStatus = e.status === "published" ? "draft" : "published";
-        toast({
-          title: newStatus === "published" ? "Event Published" : "Event Unpublished",
-          description: `The event is now ${newStatus}.`,
-        });
-        return { ...e, status: newStatus };
+  try {
+    const res = await fetch(
+      `http://localhost:2511/api/events/${eventId}/status`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          status: currentStatus === "published" ? "draft" : "published",
+        }),
       }
-      return e;
-    }));
-  };
+    );
 
-  const handleSubmit = async (e) => {
+    const updatedEvent = await res.json();
+
+    setEvents(prev =>
+      prev.map(e => (e._id === eventId ? updatedEvent : e))
+    );
+
+    toast({
+      title: "Status Updated",
+      description: `Event is now ${updatedEvent.status}`,
+    });
+  } catch (err) {
+    toast({
+      title: "Error",
+      description: "Failed to update status",
+      variant: "destructive",
+    });
+  }
+};
+
+   
+  
+
+//This stop creating new Event 
+
+const handleSubmit = async (e) => {
   e.preventDefault();
 
   const token = localStorage.getItem("token");
-  const organizerId = localStorage.getItem("userId");
 
-  if (!token || !organizerId) {
-    toast({
-      title: "Unauthorized",
-      description: "Please login again",
-      variant: "destructive",
-    });
-    return;
+  const url = editingEvent
+    ? `http://localhost:2511/api/events/${editingEvent._id}`
+    : "http://localhost:2511/api/events";
+
+  const method = editingEvent ? "PUT" : "POST";
+
+  const res = await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(formData),
+  });
+
+  if (!res.ok){
+     const text = await res.text(); 
+    throw new Error(data.message);
   }
+  const data = await res.json();
 
-  try {
-    const res = await fetch("http://localhost:2511/api/events", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(formData),
-    });
+  
 
-      const data = await res.json();
+  setEvents(prev =>
+    editingEvent
+      ? prev.map(e => (e._id === data._id ? data : e))
+      : [data, ...prev]
+  );
 
-    if (!res.ok) {
-      throw new Error(err.message || "Failed to Create Event");
-    }
-   
+  toast({
+    title: editingEvent ? "Event Updated" : "Event Created",
+  });
 
-    setEvents([data, ...events]);
-
-    toast({
-      title: "Event Created 🎉",
-      description: "Event created successfully",
-    });
-
-    setShowCreateModal(false);
-    resetForm();
-
-  } catch (error) {
-    console.error(error);
-    toast({
-      title: "Error",
-      description: error.message || "Error creating event",
-      variant: "destructive",
-    });
-  }
+  setShowCreateModal(false);
+  resetForm();
 };
 
 
@@ -348,7 +388,7 @@ const OrganizerDashboard = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {events.slice(0, 3).map((event) => (
-                      <div key={event.id} className="flex items-center gap-4 p-4 rounded-lg bg-muted/50">
+                      <div key={event._id} className="flex items-center gap-4 p-4 rounded-lg bg-muted/50">
                         <img 
                           src={event.image} 
                           alt={event.title}
@@ -390,7 +430,7 @@ const OrganizerDashboard = () => {
               ) : (
                 <div className="grid gap-4">
                   {events.map((event) => (
-                    <Card key={event.id} className="bg-card border-border overflow-hidden">
+                    <Card key={event._id} className="bg-card border-border overflow-hidden">
                       <CardContent className="p-0">
                         <div className="flex flex-col md:flex-row">
                           <img 
@@ -444,15 +484,16 @@ const OrganizerDashboard = () => {
                                 <Edit className="w-4 h-4 mr-1" />
                                 Edit
                               </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => handleToggleStatus(event.id)}
-                              >
+                              <Button
+  variant="outline"
+  size="sm"
+  onClick={() => handleToggleStatus(event._id, event.status)}
+>
+
                                 <Eye className="w-4 h-4 mr-1" />
                                 {event.status === "published" ? "Unpublish" : "Publish"}
                               </Button>
-                              <Link to={`/events/${event.id}`}>
+                              <Link to={`/events/${event._id}`}>
                                 <Button variant="outline" size="sm">
                                   <Eye className="w-4 h-4 mr-1" />
                                   View
@@ -461,7 +502,7 @@ const OrganizerDashboard = () => {
                               <Button 
                                 variant="destructive" 
                                 size="sm"
-                                onClick={() => handleDeleteEvent(event.id)}
+                                onClick={() => handleDeleteEvent(event._id)}
                               >
                                 <Trash2 className="w-4 h-4 mr-1" />
                                 Delete

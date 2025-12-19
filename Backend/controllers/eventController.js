@@ -48,3 +48,61 @@ export const singleEvent = async (req, res) => {
     res.status(500).json({ message: "Invalid event ID" });
   }
 };
+
+// Delete Single Event by ID
+export const deleteEvent = async (req, res) => {
+  try {
+    const event = await Event.findByIdAndDelete(req.params.id);
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    res.json({ message: "Event deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete event" });
+  }
+};
+// Publish or Unpublish Single Event 
+
+export const publishEvent = async (req, res) => {
+  try {
+    const { status } = req.body; // "published" or "draft"
+
+    const event = await Event.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    res.json(event);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update status" });
+  }
+};
+
+// Edit Event 
+
+export const editEvent = async (req, res) => {
+  try {
+    const updatedEvent = await Event.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedEvent) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    res.json(updatedEvent);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update event" });
+  }
+};
+
+
