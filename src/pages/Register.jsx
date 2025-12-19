@@ -24,6 +24,42 @@ const Register = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+  const emailRegex = /^(?!\.)(?!.*\.\.)[A-Za-z0-9._+\-$]+(?<!\.)@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
+  const phoneRegex = /^[0-9]{10}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+
+  if (!emailRegex.test(formData.email)) {
+    toast({
+      title: "Invalid Email ❌",
+      description: "Check your mail ✉️🔎",
+      variant: "destructive",
+    });
+    return false;
+  }
+
+  if (!phoneRegex.test(formData.phone)) {
+    toast({
+      title: "Invalid Mobile Number ❌",
+      description: "Mobile number must be exactly 10 digits",
+      variant: "destructive",
+    });
+    return false;
+  }
+
+  if (!passwordRegex.test(formData.password)) {
+    toast({
+      title: "Weak Password ❌",
+      description:
+        "Password must be 8+ characters with uppercase, lowercase, number & special character",
+      variant: "destructive",
+    });
+    return false;
+  }
+
+  return true;
+};
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -245,6 +281,16 @@ const Register = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Password must contain:
+              </p>
+              <ul className="text-xs text-muted-foreground list-disc list-inside space-y-1">
+                <li>Minimum 8 characters</li>
+                <li>One uppercase letter (A–Z)</li>
+                <li>One lowercase letter (a–z)</li>
+                <li>One number (0–9)</li>
+                <li>One special character (@$!%*?&#)</li>
+              </ul>
             </div>
 
             <div className="space-y-2">

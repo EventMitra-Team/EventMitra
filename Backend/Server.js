@@ -40,6 +40,7 @@ const organizerSchema = new mongoose.Schema({
 const Attendee = mongoose.model("Attendee", attendeeSchema);
 const Organizer = mongoose.model("Organizer", organizerSchema);
 
+
 app.post("/register", async (req, res) => {
   try {
     const { name, email, phone, password, role } = req.body;
@@ -47,6 +48,33 @@ app.post("/register", async (req, res) => {
     if (!["attendee", "organizer"].includes(role)) {
       return res.status(400).json({ message: "Invalid role ❌" });
     }
+
+  const emailRegex = /^(?!\.)(?!.*\.\.)[A-Za-z0-9._+\-$]+(?<!\.)@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
+    const phoneRegex = /^[0-9]{10}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        message: "Check your mail ✉️🔎",
+      });
+    }
+
+
+    if (!phoneRegex.test(phone)) {
+      return res.status(400).json({
+        message: "Mobile number must be exactly 10 digits",
+      });
+    }
+
+
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        message:
+          "Password must be 8+ characters with uppercase, lowercase, number & special character",
+      });
+    }
+
 
     const exists =
       await Attendee.findOne({ email }) ||
@@ -56,20 +84,38 @@ app.post("/register", async (req, res) => {
       return res.status(400).json({ message: "Email already exists ❌" });
     }
 
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
+
     if (role === "attendee") {
-      await Attendee.create({ name, email, phone, password: hashedPassword });
+      await Attendee.create({
+        name,
+        email,
+        phone,
+        password: hashedPassword,
+      });
     } else {
-      await Organizer.create({ name, email, phone, password: hashedPassword });
+      await Organizer.create({
+        name,
+        email,
+        phone,
+        password: hashedPassword,
+      });
     }
 
-    res.status(201).json({ message: "Registered successfully 🎉" });
+    res.status(201).json({
+      message: "Registered successfully 🎉",
+    });
 
   } catch (error) {
-    res.status(500).json({ message: "Server error ❌" });
+    console.error(error);
+    res.status(500).json({
+      message: "Server error ❌",
+    });
   }
 });
+
 
 //login based on roles
 app.post("/login", async (req, res) => {
