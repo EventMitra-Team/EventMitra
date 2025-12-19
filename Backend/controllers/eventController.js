@@ -33,3 +33,18 @@ export const getAllEvents = async (req, res) => {
     res.status(500).json({ message: "Error fetching events" });
   }
 };
+
+// GET SINGLE EVENT BY ID (PUBLIC)
+export const singleEvent = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id).populate("organizerId", "name email phone");
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    res.json(event);
+  } catch (error) {
+    res.status(500).json({ message: "Invalid event ID" });
+  }
+};

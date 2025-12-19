@@ -46,21 +46,31 @@ const Events = () => {
   fetchEvents();
 }, []);
 
+const filteredEvents = events.filter((event) => {
+  const title = event.title ?? "";
+  const description = event.description ?? "";
 
-  const filteredEvents = events.filter((event) => {
-    const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         event.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === "All" || event.category === activeCategory;
-    const matchesCity = selectedCity === "All Cities" || event.city === selectedCity;
-    
-    let matchesPrice = true;
-    if (selectedPrice === "Free") matchesPrice = event.price === 0;
-    else if (selectedPrice === "Under ₹1000") matchesPrice = event.price < 1000;
-    else if (selectedPrice === "₹1000 - ₹5000") matchesPrice = event.price >= 1000 && event.price <= 5000;
-    else if (selectedPrice === "Above ₹5000") matchesPrice = event.price > 5000;
+  const matchesSearch =
+    title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    description.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesSearch && matchesCategory && matchesCity && matchesPrice;
-  });
+  const matchesCategory =
+    activeCategory === "All" || event.category === activeCategory;
+
+  const matchesCity =
+    selectedCity === "All Cities" || event.city === selectedCity;
+
+  let matchesPrice = true;
+  const price = event.price ?? 0;
+
+  if (selectedPrice === "Free") matchesPrice = price === 0;
+  else if (selectedPrice === "Under ₹1000") matchesPrice = price < 1000;
+  else if (selectedPrice === "₹1000 - ₹5000")
+    matchesPrice = price >= 1000 && price <= 5000;
+  else if (selectedPrice === "Above ₹5000") matchesPrice = price > 5000;
+
+  return matchesSearch && matchesCategory && matchesCity && matchesPrice;
+});
 
   const toggleLike = (id) => {
     setLikedEvents((prev) =>
@@ -184,7 +194,7 @@ const Events = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredEvents.map((event, index) => (
                 <article
-                  key={event.id}
+                  key={event._id}
                   className="group bg-card rounded-2xl overflow-hidden shadow-elegant hover-lift animate-fade-in-up"
                   style={{ animationDelay: `${(index % 4) * 50}ms` }}
                 >
@@ -198,13 +208,13 @@ const Events = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
 
                     <button
-                      onClick={() => toggleLike(event.id)}
+                      onClick={() => toggleLike(event._id)}
                       className="absolute top-3 right-3 w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center transition-transform hover:scale-110"
                     >
                       <Heart
                         className={cn(
                           "w-4 h-4 transition-colors",
-                          likedEvents.includes(event.id)
+                          likedEvents.includes(event._id)
                             ? "fill-destructive text-destructive"
                             : "text-foreground"
                         )}
@@ -216,7 +226,8 @@ const Events = () => {
                     </span>
 
                     <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-card font-semibold text-sm text-foreground">
-                      {event.price === 0 ? "Free" : `₹${event.price.toLocaleString()}`}
+                      {event.price === 0 ? "Free" : `₹${(event.price ?? 0).toLocaleString()}
+`}
                     </span>
                   </div>
 
@@ -237,13 +248,14 @@ const Events = () => {
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Users className="w-4 h-4 text-primary" />
-                       {event.soldTickets}/{event.totalTickets} attending
+                      {(event.soldTickets || 0).toLocaleString()} / {(event.totalTickets || 0).toLocaleString()} attending
+
 
                       </div>
                     </div>
 
                     <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link to={`/events/${event.id}`}>
+                      <Link to={`/events/${event._id}`}>
                         View Details
                         <ArrowRight className="w-4 h-4" />
                       </Link>
