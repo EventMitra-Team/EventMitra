@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/layout/Navbar";
@@ -32,6 +32,9 @@ const Profile = () => {
   const { user, updateProfile, logout } = useAuth();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
+  const [bookedTickets, setBookedTickets] = useState([]);
+  // const [tickets, setTickets] = useState([]);
+
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -59,25 +62,20 @@ const Profile = () => {
     );
   }
 
-  // Demo booked tickets
-  const bookedTickets = [
-    {
-      id: 1,
-      eventName: "Diwali Music Festival 2024",
-      date: "November 15, 2024",
-      venue: "JLN Stadium, Delhi",
-      ticketCount: 2,
-      status: "confirmed",
-    },
-    {
-      id: 2,
-      eventName: "Tech Summit India",
-      date: "December 5, 2024",
-      venue: "HICC, Hyderabad",
-      ticketCount: 1,
-      status: "confirmed",
-    },
-  ];
+  useEffect(() => {
+    const fetchTickets = async () => {
+      const res = await fetch("http://localhost:2511/api/bookings/my", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      const data = await res.json();
+      setBookedTickets(data);
+    };
+
+    fetchTickets();
+  }, []);
 
   // Demo saved events
   const savedEvents = [
@@ -318,35 +316,48 @@ const Profile = () => {
                 <CardHeader>
                   <CardTitle>My Booked Tickets</CardTitle>
                 </CardHeader>
+
                 <CardContent>
                   {bookedTickets.length > 0 ? (
                     <div className="space-y-4">
                       {bookedTickets.map((ticket) => (
                         <div
-                          key={ticket.id}
+                          key={ticket._id}
                           className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
                         >
+                          {/* LEFT */}
                           <div className="space-y-1">
-                            <h4 className="font-semibold">{ticket.eventName}</h4>
+                            <h4 className="font-semibold">
+                              {ticket.eventTitle}
+                            </h4>
+
                             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                               <span className="flex items-center gap-1">
                                 <Calendar className="w-4 h-4" />
-                                {ticket.date}
+                                {ticket.eventId?.date || "—"}
                               </span>
+
                               <span className="flex items-center gap-1">
                                 <MapPin className="w-4 h-4" />
-                                {ticket.venue}
+                                {ticket.eventId?.location || "—"}
                               </span>
+
                               <span className="flex items-center gap-1">
                                 <Ticket className="w-4 h-4" />
                                 {ticket.ticketCount} ticket(s)
                               </span>
                             </div>
                           </div>
+
+                          {/* RIGHT */}
                           <div className="flex items-center gap-3 mt-4 md:mt-0">
-                            <Badge variant="outline" className="text-green-600 border-green-600">
+                            <Badge
+                              variant="outline"
+                              className="text-green-600 border-green-600"
+                            >
                               {ticket.status}
                             </Badge>
+
                             <Button variant="outline" size="sm">
                               View Ticket
                             </Button>
@@ -367,54 +378,6 @@ const Profile = () => {
               </Card>
             </TabsContent>
 
-            {/* Saved Tab */}
-            <TabsContent value="saved">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Saved Events</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {savedEvents.length > 0 ? (
-                    <div className="grid gap-4 md:grid-cols-2">
-                      {savedEvents.map((event) => (
-                        <div
-                          key={event.id}
-                          className="p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
-                        >
-                          <h4 className="font-semibold mb-2">{event.name}</h4>
-                          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              {event.date}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-4 h-4" />
-                              {event.location}
-                            </span>
-                          </div>
-                          <div className="flex gap-2 mt-4">
-                            <Button size="sm" className="flex-1">
-                              Book Now
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              <Heart className="w-4 h-4 fill-red-500 text-red-500" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12 text-muted-foreground">
-                      <Heart className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>No saved events yet</p>
-                      <Button asChild className="mt-4">
-                        <Link to="/events">Explore Events</Link>
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
 
             {/* Settings Tab */}
             <TabsContent value="settings">
