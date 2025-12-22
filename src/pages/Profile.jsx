@@ -33,6 +33,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [bookedTickets, setBookedTickets] = useState([]);
+  const token = localStorage.getItem("token");
   // const [tickets, setTickets] = useState([]);
 
   const [formData, setFormData] = useState({
@@ -61,21 +62,37 @@ const Profile = () => {
       </div>
     );
   }
+useEffect(() => {
+  const fetchTickets = async () => {
+    const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const fetchTickets = async () => {
-      const res = await fetch("http://localhost:2511/api/bookings/my", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+    if (!token) {
+      console.error("Token not found in localStorage");
+      return;
+    }
 
-      const data = await res.json();
-      setBookedTickets(data);
-    };
+    const res = await fetch("http://localhost:2511/api/bookings/my", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    fetchTickets();
-  }, []);
+    if (!res.ok) {
+      const err = await res.json();
+      console.error("Fetch tickets error:", err.message);
+      return;
+    }
+
+    const data = await res.json();
+    setBookedTickets(data);
+  };
+
+  fetchTickets();
+}, []);
+
+  
 
   // Demo saved events
   const savedEvents = [
@@ -357,10 +374,22 @@ const Profile = () => {
                             >
                               {ticket.status}
                             </Badge>
-
-                            <Button variant="outline" size="sm">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                window.open(
+  `http://localhost:2511/api/bookings/${ticket.bookingId}/pdf?token=${token}`,
+  "_blank"
+)
+                                
+                              }
+                            >
                               View Ticket
                             </Button>
+
+
+
                           </div>
                         </div>
                       ))}

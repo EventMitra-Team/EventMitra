@@ -45,7 +45,7 @@ const eventSchema = new mongoose.Schema(
       type: String,
     },
 
-    // ✅ INSERT organizerId HERE (INSIDE schema)
+    //  INSERT organizerId HERE 
     organizerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Organizer",

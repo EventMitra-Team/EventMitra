@@ -1,11 +1,11 @@
 import Event from "../models/Event.js";
 
-// CREATE EVENT
+// Create an event 
 export const createEvent = async (req, res) => {
   try {
     const event = await Event.create({
       ...req.body,
-      organizerId: req.user.id, // 🔑 FROM TOKEN
+      organizerId: req.user.id, 
     });
 
     res.status(201).json(event);
@@ -14,7 +14,7 @@ export const createEvent = async (req, res) => {
   }
 };
 
-// GET ORGANIZER EVENTS
+// Get Organiser event
 export const getOrganizerEvents = async (req, res) => {
   try {
     const events = await Event.find({ organizerId: req.user.id });
@@ -24,7 +24,7 @@ export const getOrganizerEvents = async (req, res) => {
   }
 };
 
-// GET ALL PUBLISHED EVENTS
+// get all event published
 export const getAllEvents = async (req, res) => {
   try {
     const events = await Event.find({ status: "published" });
@@ -34,7 +34,7 @@ export const getAllEvents = async (req, res) => {
   }
 };
 
-// GET SINGLE EVENT BY ID (PUBLIC)
+// Get Single event by id
 export const singleEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id).populate("organizerId", "name email phone");
@@ -67,7 +67,7 @@ export const deleteEvent = async (req, res) => {
 
 export const publishEvent = async (req, res) => {
   try {
-    const { status } = req.body; // "published" or "draft"
+    const { status } = req.body; 
 
     const event = await Event.findByIdAndUpdate(
       req.params.id,
