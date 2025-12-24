@@ -5,7 +5,15 @@ export const createBooking = async (req, res) => {
   try {
     const { eventId, attendees, ticketCount, totalAmount } = req.body;
 
-    //  Fetch event to get title + organizer
+    for (let i = 0; i < attendees.length; i++) {
+      const phone = attendees[i].phone;
+
+      if (!/^\d{10}$/.test(phone)) {
+        return res.status(400).json({
+          message: `Invalid phone number for attendee ${i + 1}. Must be 10 digits.`,
+        });
+      }
+    }
 
     const event = await Event.findById(eventId);
     if (!event) {

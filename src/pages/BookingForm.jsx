@@ -96,18 +96,27 @@ if (!event) {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  // Validate attendees
-  for (let i = 0; i < attendees.length; i++) {
-    const attendee = attendees[i];
-    if (!attendee.name || !attendee.age || !attendee.phone || !attendee.gender) {
-      toast({
-        title: "Missing Information",
-        description: `Please fill all details for Attendee ${i + 1}`,
-        variant: "destructive",
-      });
-      return;
-    }
+    for (let i = 0; i < attendees.length; i++) {
+  const attendee = attendees[i];
+
+  if (!attendee.name || !attendee.age || !attendee.phone || !attendee.gender) {
+    toast({
+      title: "Missing Information",
+      description: `Please fill all details for Attendee ${i + 1}`,
+      variant: "destructive",
+    });
+    return;
   }
+
+  if (!/^\d{10}$/.test(attendee.phone)) {
+    toast({
+      title: "Invalid Phone Number",
+      description: `Attendee ${i + 1} phone number must be exactly 10 digits`,
+      variant: "destructive",
+    });
+    return;
+  }
+}
 
   try {
     const res = await fetch("http://localhost:2511/api/bookings", {
@@ -247,14 +256,16 @@ const handleSubmit = async (e) => {
                         {/* Phone */}
                         <div className="space-y-2">
                           <Label htmlFor={`phone-${index}`}>Phone Number</Label>
-                          <Input
+                           <Input
                             id={`phone-${index}`}
                             type="tel"
-                            placeholder="Enter phone number"
+                            placeholder="10-digit phone number"
                             value={attendee.phone}
-                            onChange={(e) =>
-                              handleAttendeeChange(index, "phone", e.target.value)
-                            }
+                            maxLength={10}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/\D/g, ""); 
+                              handleAttendeeChange(index, "phone", value);
+                            }}
                             required
                           />
                         </div>
