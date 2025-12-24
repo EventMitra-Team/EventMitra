@@ -39,8 +39,11 @@ const Events = () => {
   const [selectedPrice, setSelectedPrice] = useState("Any Price");
   const [showFilters, setShowFilters] = useState(false);
   const [likedEvents, setLikedEvents] = useState([]);
+  const [bookedEventIds, setBookedEventIds] = useState([]);
+
   const [searchParams] = useSearchParams();
   const selectedCategory = searchParams.get("category");
+
 
 useEffect(() => {
   if (selectedCategory) {
@@ -65,7 +68,38 @@ useEffect(() => {
     fetchEvents();
   }, []);
 
-  const filteredEvents = events.filter((event) => {
+  useEffect(() => {
+  const fetchMyBookings = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch("http://localhost:2511/api/bookings/my", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      // extract event IDs
+      const ids = data.map(b => b.eventId?._id).filter(Boolean);
+      setBookedEventIds(ids);
+    } catch (err) {
+      console.error("Failed to fetch bookings");
+    }
+  };
+
+  fetchMyBookings();
+}, []);
+
+
+const filteredEvents = events
+  .map(event => ({
+    ...event,
+    isBooked: bookedEventIds.includes(event._id),
+  }))
+  .filter(event => {
     const title = event.title ?? "";
     const description = event.description ?? "";
 
@@ -74,9 +108,8 @@ useEffect(() => {
       description.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCategory =
-  activeCategory === "All" ||
-  event.category?.toLowerCase() === activeCategory.toLowerCase();
-
+      activeCategory === "All" ||
+      event.category?.toLowerCase() === activeCategory.toLowerCase();
 
     const matchesCity =
       selectedCity === "All Cities" || event.city === selectedCity;
@@ -91,7 +124,10 @@ useEffect(() => {
     else if (selectedPrice === "Above ₹5000") matchesPrice = price > 5000;
 
     return matchesSearch && matchesCategory && matchesCity && matchesPrice;
-  });
+  })
+  // 🔥 IMPORTANT: booked events first
+  .sort((a, b) => Number(b.isBooked) - Number(a.isBooked));
+
 
   const toggleLike = (id) => {
     setLikedEvents((prev) =>
@@ -245,6 +281,12 @@ useEffect(() => {
                     <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-xs font-medium">
                       {event.category}
                     </span>
+                    {event.isBooked && (
+  <span className="absolute bottom-3 left-3 px-2.5 py-1 rounded-full bg-green-600 text-white text-xs font-semibold">
+    ✔ Booked
+  </span>
+)}
+
 
                     <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-card font-semibold text-sm text-foreground">
                       {event.price === 0 ? "Free" : `₹${(event.price ?? 0).toLocaleString()}

@@ -48,11 +48,10 @@ export const createBooking = async (req, res) => {
 
 export const getMyBookings = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const bookings = await Booking.find({ userId: req.user.id })
-      .populate("eventId");
+   const bookings = await Booking.find({ userId: req.user.id })
+    .populate("eventId");
 
-    res.json(bookings);
+  res.json(bookings);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch bookings" });
   }
