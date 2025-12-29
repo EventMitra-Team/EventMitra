@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - EventMitra</title>
+  <meta name="description" content="Create your EventMitra account and start organizing amazing events today.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="auth-container">
+    <!-- Left Side - Form -->
+    <div class="auth-form">
+      <div class="auth-form-content">
+        <!-- Logo -->
+        <a href="index.html" class="logo" style="margin-bottom: 2rem;">
+          <div class="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <span class="logo-text">Event<span class="highlight">Mitra</span></span>
+        </a>
+
+        <h1>Create Your Account</h1>
+        <p>Start organizing amazing events in minutes</p>
+
+        <form onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" placeholder="John Doe" required>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="you@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" placeholder="+91 98765 43210">
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Create a strong password" required>
+          </div>
+
+          <div class="form-group">
+            <label>User Type</label>
+            <select id="role" required>
+              <option value="attendee">Attendee</option>
+              <option value="organizer">Organizer</option>
+            </select>
+          </div>
+
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+            Create Account
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </form>
+
+        <p style="text-align: center; margin-top: 2rem; color: var(--muted-foreground);">
+          Already have an account?
+          <a href="login.html" style="color: var(--primary); font-weight: 600; text-decoration: none;">Sign in</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Right Side - Image -->
+    <div class="auth-side">
+      <div class="auth-side-content">
+        <h2>Join India's Largest<br>Event Community</h2>
+        <p style="opacity: 0.8; font-size: 1.125rem; margin-bottom: 2rem;">
+          Create, manage, and promote events with powerful tools trusted by thousands of organizers.
+        </p>
+        <div class="stats">
+          <div class="stat-item">
+            <div class="stat-number">10K+</div>
+            <div class="stat-label">Events Hosted</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">50K+</div>
+            <div class="stat-label">Happy Users</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">25+</div>
+            <div class="stat-label">Cities</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function handleRegister(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('fullName').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
+      const role = document.getElementById('role').value;
+
+      try {
+        const response = await fetch("http://localhost:2511/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            phone,
+            password,
+            role
+          }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert("🎉 Account created successfully!");
+          window.location.href = "login.html";
+        } else {
+          alert("❌ " + result.message);
+        }
+      } catch (error) {
+        alert("🚨 Server not responding");
+        console.error(error);
+      }
+    }
+  </script>
+
+
+</body>
+
+</html>

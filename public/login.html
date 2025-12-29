@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - EventMitra</title>
+  <meta name="description" content="Sign in to your EventMitra account to manage your events and bookings.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="auth-container">
+    <!-- Left Side - Form -->
+    <div class="auth-form">
+      <div class="auth-form-content">
+        <!-- Logo -->
+        <a href="index.html" class="logo" style="margin-bottom: 2rem;">
+          <div class="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <span class="logo-text">Event<span class="highlight">Mitra</span></span>
+        </a>
+
+        <h1>Welcome Back</h1>
+        <p>Sign in to continue managing your events</p>
+
+        <form onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="you@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter your password" required>
+          </div>
+
+          <div style="text-align: right; margin-bottom: 1.5rem;">
+            <a href="#" style="color: var(--primary); text-decoration: none; font-size: 0.875rem;">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+            Sign In
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </form>
+
+        <p style="text-align: center; margin-top: 2rem; color: var(--muted-foreground);">
+          Don't have an account?
+          <a href="register.html" style="color: var(--primary); font-weight: 600; text-decoration: none;">Sign up for
+            free</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Right Side - Image -->
+    <div class="auth-side">
+      <div class="auth-side-content">
+        <h2>Manage Events<br>Like Never Before</h2>
+        <p style="opacity: 0.8; font-size: 1.125rem; margin-bottom: 2rem;">
+          Join thousands of event organizers across India who trust EventMitra for creating memorable experiences.
+        </p>
+        <div class="stats">
+          <div class="stat-item">
+            <div class="stat-number">10K+</div>
+            <div class="stat-label">Events Hosted</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">50K+</div>
+            <div class="stat-label">Happy Users</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">25+</div>
+            <div class="stat-label">Cities</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script>
+    async function handleLogin(event) {
+      event.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        alert("❌ Email & Password required");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:2511/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          alert(result.message);
+          return;
+        }
+
+
+        localStorage.setItem("token", result.token);
+
+
+        localStorage.setItem("role", result.user.role);
+
+
+        if (result.user.role === "attendee") {
+          window.location.href = "Profile.jsx";
+        } else if (result.user.role === "organizer") {
+          window.location.href = "OrganizerDashboard.jsx";
+        }
+
+      } catch (error) {
+        alert("🚨 Backend not reachable");
+        console.error(error);
+      }
+    }
+  </script>
+
+
+
+</body>
+
+</html>
