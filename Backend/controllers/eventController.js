@@ -3,6 +3,12 @@ import Event from "../models/Event.js";
 // CREATE EVENT (subscription already validated by middleware)
 export const createEvent = async (req, res) => {
   try {
+    const eventDate = new Date(req.body.date);
+const today = new Date();
+
+const eventState =
+  eventDate < today ? "expired" : "upcoming";
+
     const organiser = req.organizer;
     console.log("EVENT PAYLOAD:", req.body); // 🔥 ADD THIS
     const event = await Event.create({
@@ -18,6 +24,7 @@ export const createEvent = async (req, res) => {
       description: req.body.description,
       organizerId: organiser._id,
       status: "pending",
+      eventState,  
     });
 
     organiser.subscription.eventsUsed += 1;
@@ -32,6 +39,8 @@ export const createEvent = async (req, res) => {
     return res.status(500).json({ message: "Event creation failed ❌" });
   }
 };
+
+
 
 // ADMIN: pending events
 export const eventToAdmin = async (req, res) => {
@@ -99,7 +108,11 @@ export const getOrganizerEvents = async (req, res) => {
 // PUBLIC EVENTS
 export const getAllEvents = async (req, res) => {
   try {
-    const events = await Event.find({ status: "published" });
+    const events = await Event.find({
+  status: "published",
+  eventState: "upcoming",
+});
+
     res.json(events);
   } catch {
     res.status(500).json({ message: "Error fetching events" });
@@ -109,18 +122,30 @@ export const getAllEvents = async (req, res) => {
 // SINGLE EVENT
 export const singleEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id).populate(
-      "organizerId",
-      "name email phone"
-    );
+    const event = await Event.findOne({
+      _id: req.params.id,
+      status: "published",
+    }).populate("organizerId", "name email phone");
 
-    if (!event) return res.status(404).json({ message: "Event not found" });
+    if (!event) {
+      return res.status(404).json({
+        message: "Event not found",
+      });
+    }
+
+    // 🔥 expiry check
+    if (event.eventState === "expired") {
+      return res.status(410).json({
+        message: "This event has expired",
+      });
+    }
 
     res.json(event);
-  } catch {
+  } catch (err) {
     res.status(500).json({ message: "Invalid event ID" });
   }
 };
+
 
 // DELETE EVENT
 export const deleteEvent = async (req, res) => {

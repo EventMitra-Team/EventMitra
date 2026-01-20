@@ -19,6 +19,8 @@ import OrganizerDashboard from "./pages/OrganizerDashboard";
 import Profile from "./pages/Profile";
 import BookingForm from "./pages/BookingForm";
 import BookingConfirmation from "./pages/BookingConfirmation";
+// import ForgotPassword from "./pages/ForgotPassword";
+// import ResetPassword from "./pages/ResetPassword";
 
 // Admin
 import AdminLogin from "@/pages/admin/AdminLogin";
@@ -33,20 +35,22 @@ import { OrganiserProvider } from "@/context/OrganiserContext";
 import { EventProvider } from "@/context/EventContext";
 import RegisterSuccess from "@/pages/RegisterSuccess";
 
+
 const App = () => {
   useEffect(() => {
-    loadTheme(); // apply saved theme on refresh
+    loadTheme();
   }, []);
 
   return (
-    <AuthProvider>
-      <AdminProvider>
-        <OrganiserProvider>
-          <EventProvider>
-            <TooltipProvider>
-              <Toaster />
-              <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
+        <AdminProvider>
+          <OrganiserProvider>
+            <EventProvider>
+              <TooltipProvider>
+                <Toaster />
                 <ScrollToTop />
+
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/events" element={<Events />} />
@@ -62,11 +66,13 @@ const App = () => {
                     path="/booking/confirmation"
                     element={<BookingConfirmation />}
                   />
-                  {/* ADMIN ROUTES */}
+
+                  {/* ADMIN */}
                   <Route path="/admin" element={<AdminLogin />} />
 
                   <Route
-                    path="/admin/dashboard" element={
+                    path="/admin/dashboard"
+                    element={
                       <ProtectedRoute>
                         <AdminDashboard />
                       </ProtectedRoute>
@@ -74,7 +80,8 @@ const App = () => {
                   />
 
                   <Route
-                    path="/admin/organisers" element={
+                    path="/admin/organisers"
+                    element={
                       <ProtectedRoute>
                         <AdminOrganisers />
                       </ProtectedRoute>
@@ -89,6 +96,7 @@ const App = () => {
                       </ProtectedRoute>
                     }
                   />
+
                   <Route
                     path="/admin/transactions"
                     element={
@@ -98,7 +106,6 @@ const App = () => {
                     }
                   />
 
-
                   <Route
                     path="/admin/settings"
                     element={
@@ -107,21 +114,18 @@ const App = () => {
                       </ProtectedRoute>
                     }
                   />
+
                   <Route path="/register-success" element={<RegisterSuccess />} />
-
-
-
                   <Route path="*" element={<NotFound />} />
-
-
                 </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </EventProvider>
-        </OrganiserProvider>
-      </AdminProvider>
-    </AuthProvider>
+              </TooltipProvider>
+            </EventProvider>
+          </OrganiserProvider>
+        </AdminProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 };
+
 
 export default App;

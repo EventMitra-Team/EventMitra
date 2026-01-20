@@ -17,30 +17,28 @@ const AdminLogin = () => {
   const { toast } = useToast();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  e.preventDefault();
+  setIsLoading(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  const success = await login(email, password); // ✅ await added
 
-    const success = login(email, password);
-    
-    if (success) {
-      toast({
-        title: 'Welcome back!',
-        description: 'Successfully logged in to admin panel.',
-      });
-      navigate('/admin/dashboard');
-    } else {
-      toast({
-        title: 'Login Failed',
-        description: 'Invalid email or password. Please try again.',
-        variant: 'destructive',
-      });
-    }
-    
-    setIsLoading(false);
-  };
+  if (success) {
+    toast({
+      title: "Welcome back!",
+      description: "Successfully logged in to admin panel.",
+    });
+    navigate("/admin/dashboard");
+  } else {
+    toast({
+      title: "Login Failed",
+      description: "Invalid email or password. Please try again.",
+      variant: "destructive",
+    });
+  }
+
+  setIsLoading(false);
+};
+
 
   return (
     <div className="min-h-screen gradient-hero pattern-overlay flex items-center justify-center p-4">

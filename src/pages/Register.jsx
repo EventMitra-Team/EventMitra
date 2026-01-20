@@ -125,20 +125,22 @@ const [otpVerified, setOtpVerified] = useState(false);
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:2511/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          password: formData.password,
-          role: userType,
-        }),
+      const response = await fetch(
+  "http://localhost:2511/register",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      password: formData.password,
+      role: userType, 
+    }),
+  }
+);
 
-      });
+   
 
       const result = await response.json();
 

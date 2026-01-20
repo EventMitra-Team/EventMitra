@@ -6,6 +6,15 @@ const organizerSchema = new mongoose.Schema({
   phone: String,
   password: String,
 
+   bio: {
+    type: String,
+    default: "",
+  },
+  location: {
+    type: String,
+    default: "",
+  },
+
   status: {
     type: String,
     enum: ["pending", "active", "inactive"],

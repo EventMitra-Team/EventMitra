@@ -16,45 +16,70 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData) => {
-    const userInfo = {
-      email: userData.email,
-      name: userData.name || userData.email.split("@")[0],
-      avatar: null,
-      phone: userData.phone || "",
-      role: userData.role,
-      joinedDate: new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" }),
-    };
-    setUser(userInfo);
-    localStorage.setItem("eventmitra_user", JSON.stringify(userInfo));
-    return userInfo;
+  const userInfo = {
+    _id: userData._id,
+    name: userData.name,
+    email: userData.email,
+    phone: userData.phone,
+    role: userData.role,
+
+    // 👇 ADD THESE (VERY IMPORTANT)
+    bio: userData.bio || "",
+    location: userData.location || "",
+
+    avatar: null,
+    joinedDate: new Date().toLocaleDateString("en-IN", {
+      month: "long",
+      year: "numeric",
+    }),
   };
 
-  // const logout = () => {
-  //   setUser(null);
-  //   localStorage.removeItem("eventmitra_user");
-  // };
-  const logout = () => {
+  setUser(userInfo);
+  localStorage.setItem("eventmitra_user", JSON.stringify(userInfo));
+  return userInfo;
+};
+
+const logout = () => {
   setUser(null);
   localStorage.removeItem("eventmitra_user");
-
-  // clear auth tokens if you use them elsewhere
-  localStorage.removeItem("token");
-  localStorage.removeItem("userId");
-  localStorage.removeItem("adminToken");
-
-  // clear booked events so ✔ Booked + sorting reset
-  localStorage.removeItem("bookedEventIds");
+  localStorage.removeItem("token"); // JWT clear
 };
 
 
-  const updateProfile = (updates) => {
-    const updatedUser = { ...user, ...updates };
-    setUser(updatedUser);
-    localStorage.setItem("eventmitra_user", JSON.stringify(updatedUser));
+const updateProfile = async (data) => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("http://localhost:2511/api/profile/update", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      bio: data.bio,
+      location: data.location,
+    }),
+  });
+
+  const result = await res.json();
+
+  if (!result.success) return;
+
+  const updatedUser = {
+    ...user,
+    bio: result.user.bio,
+    location: result.user.location,
   };
+
+  setUser(updatedUser);
+  localStorage.setItem("eventmitra_user", JSON.stringify(updatedUser));
+};
+
+
 
   return (
     <AuthContext.Provider value={{ user, isLoading, login, logout, updateProfile }}>
+
       {children}
     </AuthContext.Provider>
   );

@@ -36,7 +36,6 @@ const AdminDashboard = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // map backend statuses: events use "pending" | "published" | "rejected"
   const statsData = {
     total: organisers.length,
     active: organisers.filter((o) => o.status === "active").length,

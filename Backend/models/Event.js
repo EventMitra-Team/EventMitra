@@ -7,7 +7,7 @@ const eventSchema = new mongoose.Schema(
       required: true,
     },
     date: {
-      type: String,
+      type: Date,
       required: true,
     },
     time: {
@@ -44,6 +44,12 @@ const eventSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    eventState: {
+  type: String,
+  enum: ["upcoming", "expired"],
+  default: "upcoming",
+},
+
 
     //  INSERT organizerId HERE 
     organizerId: {

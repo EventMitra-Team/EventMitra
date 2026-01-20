@@ -22,7 +22,6 @@ import {
   Save,
   LayoutDashboard,
   CalendarDays,
-  Settings,
   LogOut,
   Crown,
   AlertCircle,
@@ -514,7 +513,6 @@ const OrganizerDashboard = () => {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "events", label: "My Events", icon: CalendarDays },
     { id: "subscription", label: "Subscription", icon: CreditCard },
-    { id: "settings", label: "Settings", icon: Settings },
   ];
 
   const eventStats = {
@@ -578,7 +576,6 @@ const OrganizerDashboard = () => {
                 {activeTab === "dashboard" && "Organizer Dashboard"}
                 {activeTab === "events" && "My Events"}
                 {activeTab === "subscription" && "Subscription"}
-                {activeTab === "settings" && "Settings"}
               </h1>
               <p className="text-muted-foreground text-sm">
                 Welcome back, Organizer!
@@ -1073,51 +1070,7 @@ const OrganizerDashboard = () => {
                 </Card>
               )}
             </div>
-          )}
-
-          {/* Settings Tab */}
-          {activeTab === "settings" && (
-            <div className="space-y-6 animate-fade-in">
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="font-display text-xl">Organizer Profile</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="orgName">Organization Name</Label>
-                      <Input id="orgName" placeholder="Your organization name" defaultValue="EventMitra Organizers" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="orgEmail">Email</Label>
-                      <Input id="orgEmail" type="email" placeholder="contact@example.com" defaultValue="organizer@eventmitra.com" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="orgPhone">Phone</Label>
-                      <Input id="orgPhone" type="tel" placeholder="+91 98765 43210" defaultValue="+91 98765 43210" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="orgCity">City</Label>
-                      <Input id="orgCity" placeholder="Your city" defaultValue="Mumbai" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="orgBio">Bio</Label>
-                    <Textarea
-                      id="orgBio"
-                      placeholder="Tell attendees about your organization..."
-                      defaultValue="We are a premier event management company specializing in cultural and corporate events across India."
-                      rows={4}
-                    />
-                  </div>
-                  <Button className="gap-2">
-                    <Save className="w-4 h-4" />
-                    Save Changes
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+          )} 
         </div>
       </main>
 

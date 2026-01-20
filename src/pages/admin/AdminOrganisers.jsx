@@ -232,7 +232,7 @@ const AdminOrganisers = () => {
     }
   };
 
- 
+
   const openViewDialog = (organiser) => {
     setSelectedOrganiser(organiser);
     setIsViewDialogOpen(true);
@@ -251,7 +251,7 @@ const AdminOrganisers = () => {
 
   const getSubscriptionBadge = (subscription = {}) => {
     if (subscription.status === "active") {
-      return <Badge className="subscription-active">Active</Badge>;
+      return <Badge className="subscription-active text-xs px-2 py-1 whitespace-nowrap">Active</Badge>;
     }
     if (subscription.status === "expired") {
       return <Badge className="subscription-expired">Expired</Badge>;
@@ -268,7 +268,7 @@ const AdminOrganisers = () => {
 
   return (
     <AdminLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         {/* HEADER + ADD DIALOG (UI unchanged) */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 animate-fade-in">
           <div>
@@ -357,7 +357,7 @@ const AdminOrganisers = () => {
         {/* FILTER CARD (UI unchanged) */}
         <Card className="glass mb-6 animate-fade-in-up">
           <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -371,7 +371,7 @@ const AdminOrganisers = () => {
                 value={statusFilter}
                 onValueChange={setStatusFilter}
               >
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full lg:w-48">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -385,7 +385,7 @@ const AdminOrganisers = () => {
                 value={subscriptionFilter}
                 onValueChange={setSubscriptionFilter}
               >
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full lg:w-48">
                   <SelectValue placeholder="Subscription" />
                 </SelectTrigger>
                 <SelectContent>
@@ -407,8 +407,8 @@ const AdminOrganisers = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="w-full overflow-x-auto scrollbar-thin">
+              <table className="w-full min-w-[900px]">
                 <thead>
                   <tr className="border-b border-border">
                     <th className="text-left py-4 px-4 text-sm font-semibold text-muted-foreground">
@@ -426,7 +426,7 @@ const AdminOrganisers = () => {
                     <th className="text-left py-4 px-4 text-sm font-semibold text-muted-foreground">
                       Events
                     </th>
-                    <th className="text-right py-4 px-4 text-sm font-semibold text-muted-foreground">
+                    <th className="text-right whitespace-nowrap py-4 px-4 text-sm font-semibold text-muted-foreground">
                       Actions
                     </th>
                   </tr>
@@ -439,18 +439,18 @@ const AdminOrganisers = () => {
                     >
                       <td className="py-4 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
                             {organiser.name?.charAt(0)}
                           </div>
                           <div>
-                            <p className="font-medium text-foreground">
+                            <p className="font-medium text-foreground truncate max-w-[180px]">
                               {organiser.name}
                             </p>
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-4">
-                        <p className="text-sm text-foreground">
+                        <p className="text-sm text-foreground truncate max-w-[220px]">
                           {organiser.email}
                         </p>
                         <p className="text-sm text-muted-foreground">
@@ -460,10 +460,10 @@ const AdminOrganisers = () => {
                       <td className="py-4 px-4">
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-medium ${organiser.status === "active"
-                              ? "bg-success/10 text-success"
-                              : organiser.status === "pending"
-                                ? "bg-accent/20 text-accent-foreground"
-                                : "bg-muted text-muted-foreground"
+                            ? "bg-success/10 text-success"
+                            : organiser.status === "pending"
+                              ? "bg-accent/20 text-accent-foreground"
+                              : "bg-muted text-muted-foreground"
                             }`}
                         >
                           {organiser.status
@@ -486,7 +486,7 @@ const AdminOrganisers = () => {
                       </td>
 
 
-                      <td className="py-4 px-4 text-right">
+                      <td className="py-4 px-4 text-right whitespace-nowrap">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">
@@ -503,7 +503,7 @@ const AdminOrganisers = () => {
                               <Eye className="w-4 h-4 mr-2" />
                               View
                             </DropdownMenuItem>
-                            
+
                             <DropdownMenuItem
                               onClick={() =>
                                 approveOrganiser(organiser._id)

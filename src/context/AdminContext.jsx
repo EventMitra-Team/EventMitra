@@ -1,46 +1,36 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 const AdminContext = createContext(undefined);
 
 export const AdminProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const authStatus = sessionStorage.getItem("adminAuth");
-    if (authStatus === "true") {
-      setIsAuthenticated(true);
-    }
-  }, []);
+  // 🔥 INITIAL STATE FROM LOCALSTORAGE
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return Boolean(localStorage.getItem("adminToken"));
+  });
 
   const login = async (email, password) => {
     try {
-      const res = await fetch("http://localhost:2511/admin/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await fetch("http://localhost:2511/api/admin/login", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email, password }),
+});
+
 
       if (!res.ok) return false;
 
       const data = await res.json();
-
       localStorage.setItem("adminToken", data.token);
-      sessionStorage.setItem("adminAuth", "true");
       setIsAuthenticated(true);
-
       return true;
-    } catch (err) {
-      console.error("Admin login error:", err);
+    } catch {
       return false;
     }
   };
 
   const logout = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem("adminAuth");
     localStorage.removeItem("adminToken");
+    setIsAuthenticated(false);
   };
 
   return (
@@ -52,7 +42,7 @@ export const AdminProvider = ({ children }) => {
 
 export const useAdmin = () => {
   const context = useContext(AdminContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useAdmin must be used within an AdminProvider");
   }
   return context;

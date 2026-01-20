@@ -48,6 +48,17 @@ const Profile = () => {
   });
 
   useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        bio: user.bio || "",
+        location: user.location || "",
+      });
+    }
+  }, [user]);
+  useEffect(() => {
     if (!user) return;
 
     const fetchTickets = async () => {
@@ -81,9 +92,6 @@ const Profile = () => {
       </div>
     );
   }
-
-
-
   // Demo saved events
   const savedEvents = [
     {
@@ -103,14 +111,26 @@ const Profile = () => {
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  const handleSave = async () => {
+    try {
+      await updateProfile({
+        bio: formData.bio,
+        location: formData.location,
+      });
 
-  const handleSave = () => {
-    updateProfile(formData);
-    setIsEditing(false);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been updated successfully.",
-    });
+      setIsEditing(false);
+
+      toast({
+        title: "Profile Updated",
+        description: "Saved successfully",
+      });
+    } catch {
+      toast({
+        title: "Update failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleLogout = () => {
@@ -130,6 +150,45 @@ const Profile = () => {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  const handleDeleteAccount = async () => {
+    const confirmDelete = window.confirm(
+      "Are you sure? This action cannot be undone."
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch("http://localhost:2511/api/account/delete", {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      toast({
+        title: "Account Deleted",
+        description: "Your account has been permanently deleted.",
+      });
+
+      // logout + clear everything
+      logout();
+      navigate("/");
+    } catch (err) {
+      toast({
+        title: "Delete failed",
+        description: err.message || "Something went wrong",
+        variant: "destructive",
+      });
+    }
+  };
+
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -247,10 +306,10 @@ const Profile = () => {
                           id="name"
                           name="name"
                           value={formData.name}
-                          onChange={handleInputChange}
-                          disabled={!isEditing}
-                          className="pl-10"
+                          disabled
+                          className="pl-10 bg-muted cursor-not-allowed"
                         />
+
                       </div>
                     </div>
 
@@ -263,8 +322,9 @@ const Profile = () => {
                           name="email"
                           value={formData.email}
                           disabled
-                          className="pl-10 bg-muted"
+                          className="pl-10 bg-muted cursor-not-allowed"
                         />
+
                       </div>
                     </div>
 
@@ -276,10 +336,8 @@ const Profile = () => {
                           id="phone"
                           name="phone"
                           value={formData.phone}
-                          onChange={handleInputChange}
-                          disabled={!isEditing}
-                          placeholder="+91 98765 43210"
-                          className="pl-10"
+                          disabled
+                          className="pl-10 bg-muted cursor-not-allowed"
                         />
                       </div>
                     </div>
@@ -398,17 +456,7 @@ const Profile = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 rounded-lg border">
-                      <div>
-                        <h4 className="font-medium">Email Notifications</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Receive updates about your booked events
-                        </p>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        Manage
-                      </Button>
-                    </div>
+
 
                     <div className="flex items-center justify-between p-4 rounded-lg border">
                       <div>
@@ -431,9 +479,14 @@ const Profile = () => {
                           Permanently delete your account and all data
                         </p>
                       </div>
-                      <Button variant="destructive" size="sm">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleDeleteAccount}
+                      >
                         Delete
                       </Button>
+
                     </div>
                   </div>
                 </CardContent>
