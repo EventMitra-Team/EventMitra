@@ -19,36 +19,48 @@ export const createOrder = async (req, res) => {
         .json({ message: "Payment service not configured" });
     }
 
-    const { planId } = req.body;
+    let { planId, amount } = req.body;
 
+    // Subscription plans
     const plans = {
       basic: 4999,
       pro: 9999,
       enterprise: 19999,
     };
 
-    if (!plans[planId]) {
-      return res.status(400).json({ message: "Invalid plan" });
+    // If coming from event booking (amount sent)
+    if (amount) {
+      amount = Number(amount);
+      if (amount <= 0) {
+        return res.status(400).json({ message: "Invalid amount" });
+      }
+    }
+    // If coming from subscription page (planId sent)
+    else if (plans[planId]) {
+      amount = plans[planId];
+    }
+    // Neither provided
+    else {
+      return res.status(400).json({ message: "Invalid plan or amount" });
     }
 
     const order = await razorpay.orders.create({
-      amount: plans[planId] * 100,
+      amount: amount * 100,
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
     });
 
     return res.json({
       keyId: process.env.RAZORPAY_KEY_ID,
-      orderId: order.id,
+      id: order.id,
       amount: order.amount,
-      plan: planId,
     });
   } catch (err) {
-    console.error("RAZORPAY FULL ERROR:", err?.error || err?.response || err);
-  res.status(500).json({
-    message: "Order creation failed",
-    razorpay: err?.error || err?.message,
-  });
+    console.error("RAZORPAY FULL ERROR:", err);
+    res.status(500).json({
+      message: "Order creation failed",
+      razorpay: err?.error || err?.message,
+    });
   }
 };
 

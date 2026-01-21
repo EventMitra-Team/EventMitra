@@ -1,4 +1,4 @@
-import { useState , useEffect} from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -15,7 +15,7 @@ import {
 import { ArrowLeft, Calendar, MapPin, Clock, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-//RazorPay 
+// RazorPay Loader
 const loadRazorpay = () => {
   return new Promise((resolve) => {
     const script = document.createElement("script");
@@ -26,8 +26,6 @@ const loadRazorpay = () => {
   });
 };
 
-
-//EVENTS
 const BookingForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -40,54 +38,46 @@ const BookingForm = () => {
     { name: "", age: "", phone: "", gender: "" },
   ]);
 
-useEffect(() => {
-  const fetchEvent = async () => {
-    try {
-      const res = await fetch(`http://localhost:2511/api/events/${id}`);
-      if (!res.ok) throw new Error("Event not found");
-      const data = await res.json();
-      setEvent(data);
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Event not found",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const res = await fetch(`http://localhost:2511/api/events/${id}`);
+        if (!res.ok) throw new Error("Event not found");
+        const data = await res.json();
+        setEvent(data);
+      } catch (err) {
+        toast({
+          title: "Error",
+          description: "Event not found",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvent();
+  }, [id]);
 
-  fetchEvent();
-}, [id]);
+  if (loading) return <div className="pt-32 text-center">Loading...</div>;
 
-
-  if (loading) {
-  return <div className="pt-32 text-center">Loading...</div>;
-}
-
-if (!event) {
-  return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold">Event Not Found</h1>
-        <Link to="/events" className="text-primary mt-4 inline-block">
-          Back to Events
-        </Link>
+  if (!event) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <h1 className="text-2xl font-bold">Event Not Found</h1>
+          <Link to="/events" className="text-primary mt-4 inline-block">
+            Back to Events
+          </Link>
+        </div>
+        <Footer />
       </div>
-      <Footer />
-    </div>
-  );
-}
-
-
+    );
+  }
 
   const handleTicketCountChange = (value) => {
     const count = parseInt(value);
     setTicketCount(count);
-    
-    // Adjust attendees array based on ticket count
     if (count > attendees.length) {
       const newAttendees = [...attendees];
       for (let i = attendees.length; i < count; i++) {
@@ -104,116 +94,42 @@ if (!event) {
     updated[index][field] = value;
     setAttendees(updated);
   };
-  
-const handleSubmit = async (e) => {
-  e.preventDefault();
 
-  // 1️⃣ Attendee validation
-  for (let i = 0; i < attendees.length; i++) {
-    const a = attendees[i];
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    if (!a.name || !a.age || !a.phone || !a.gender) {
+    for (let i = 0; i < attendees.length; i++) {
+      const a = attendees[i];
+      if (!a.name || !a.age || !a.phone || !a.gender) {
+        toast({
+          title: "Missing Information",
+          description: `Please fill all details for Attendee ${i + 1}`,
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!/^\d{10}$/.test(a.phone)) {
+        toast({
+          title: "Invalid Phone Number",
+          description: `Attendee ${i + 1} phone number must be exactly 10 digits`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
       toast({
-        title: "Missing Information",
-        description: `Please fill all details for Attendee ${i + 1}`,
+        title: "Login required",
+        description: "Please login to continue booking",
         variant: "destructive",
       });
       return;
     }
 
-    if (!/^\d{10}$/.test(a.phone)) {
-      toast({
-        title: "Invalid Phone Number",
-        description: `Attendee ${i + 1} phone number must be exactly 10 digits`,
-        variant: "destructive",
-      });
-      return;
-    }
-  }
-
-  // 2️⃣ Token check
-  const token = localStorage.getItem("token");
-  if (!token) {
-    toast({
-      title: "Login required",
-      description: "Please login to continue booking",
-      variant: "destructive",
-    });
-    return;
-  }
-
-  // =========================
-  // 🆓 FREE EVENT
-  // =========================
-  if (event.price === 0) {
-    const res = await fetch("http://localhost:2511/api/bookings", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        eventId: event._id,
-        attendees,
-        ticketCount,
-        totalAmount: 0,
-      }),
-    });
-
-    const data = await res.json();
-
-    navigate("/booking/confirmation", {
-      state: {
-        bookingId: data.bookingId,
-        event,
-        attendees,
-        ticketCount,
-        totalAmount: 0,
-        paymentStatus: "Free",
-      },
-    });
-
-    return;
-  }
-
-  // =========================
-  // 💳 PAID EVENT (RAZORPAY)
-  // =========================
-  const loaded = await loadRazorpay();
-  if (!loaded) {
-    toast({
-      title: "Error",
-      description: "Razorpay failed to load",
-      variant: "destructive",
-    });
-    return;
-  }
-
-  // Create Razorpay order
-  const orderRes = await fetch(
-    "http://localhost:2511/api/payment/create-order",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount: event.price * ticketCount,
-      }),
-    }
-  );
-
-  const order = await orderRes.json();
-
-  const options = {
-    key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-    amount: order.amount,
-    currency: "INR",
-    name: "EventMitra",
-    description: event.title,
-    order_id: order.id,
-
-    handler: async function (response) {
-      // Save booking after payment success
-      const bookingRes = await fetch("http://localhost:2511/api/bookings", {
+    if (event.price === 0) {
+      const res = await fetch("http://localhost:2511/api/bookings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -223,38 +139,104 @@ const handleSubmit = async (e) => {
           eventId: event._id,
           attendees,
           ticketCount,
-          totalAmount: event.price * ticketCount,
-          payment: {
-            razorpayOrderId: response.razorpay_order_id,
-            razorpayPaymentId: response.razorpay_payment_id,
-            razorpaySignature: response.razorpay_signature,
-          },
+          totalAmount: 0,
         }),
       });
-
-      const data = await bookingRes.json();
-
+      const data = await res.json();
       navigate("/booking/confirmation", {
         state: {
           bookingId: data.bookingId,
           event,
           attendees,
           ticketCount,
-          totalAmount: data.totalAmount,
-
-          // 🔥 यही line badge + transaction ID दिखाएगी
-          paymentId: response.razorpay_payment_id,
-          paymentStatus: "Paid",
+          totalAmount: 0,
+          paymentStatus: "Free",
         },
       });
-    },
+      return;
+    }
 
-    theme: { color: "#ff7a18" },
+    const loaded = await loadRazorpay();
+    if (!loaded) {
+      toast({
+        title: "Error",
+        description: "Razorpay failed to load",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const orderRes = await fetch(
+      "http://localhost:2511/api/subscriptions/create-order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ amount: event.price * ticketCount }),
+      }
+    );
+
+    if (!orderRes.ok) {
+      const err = await orderRes.json();
+      toast({
+        title: "Payment error",
+        description: err.message || "Order creation failed",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const order = await orderRes.json();
+
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: "INR",
+      name: "EventMitra",
+      description: event.title,
+      order_id: order.id,
+      handler: async function (response) {
+        const bookingRes = await fetch("http://localhost:2511/api/bookings", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            eventId: event._id,
+            attendees,
+            ticketCount,
+            totalAmount: event.price * ticketCount,
+            payment: {
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+            },
+          }),
+        });
+
+        const data = await bookingRes.json();
+
+        navigate("/booking/confirmation", {
+          state: {
+            bookingId: data.bookingId,
+            event,
+            attendees,
+            ticketCount,
+            totalAmount: data.totalAmount,
+            paymentId: response.razorpay_payment_id,
+            paymentStatus: "Paid",
+          },
+        });
+      },
+      theme: { color: "#ff7a18" },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
   };
-
-  const rzp = new window.Razorpay(options);
-  rzp.open();
-};
 
 
   return (
