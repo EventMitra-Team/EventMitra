@@ -86,67 +86,67 @@ export const register = async (req, res) => {
  };
 
 
-export const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+// export const login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
 
-    let user = await Attendee.findOne({ email });
-    let role = "attendee";
+//     let user = await Attendee.findOne({ email });
+//     let role = "attendee";
 
-    if (!user) {
-      user = await Organizer.findOne({ email });
-      role = "organizer";
-    }
+//     if (!user) {
+//       user = await Organizer.findOne({ email });
+//       role = "organizer";
+//     }
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found ❌" });
-    }
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found ❌" });
+//     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Wrong password ❌" });
-    }
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) {
+//       return res.status(401).json({ message: "Wrong password ❌" });
+//     }
 
-    // 🔒 ONLY organizer needs admin approval
-    if (role === "organizer") {
-      if (user.status === "pending") {
-        return res.status(403).json({
-          message: "Your account is waiting for admin approval",
-        });
-      }
-      if (user.status === "inactive") {
-        return res.status(403).json({
-          message: "Your account is blocked by admin",
-        });
-      }
-    }
+//     // 🔒 ONLY organizer needs admin approval
+//     if (role === "organizer") {
+//       if (user.status === "pending") {
+//         return res.status(403).json({
+//           message: "Your account is waiting for admin approval",
+//         });
+//       }
+//       if (user.status === "inactive") {
+//         return res.status(403).json({
+//           message: "Your account is blocked by admin",
+//         });
+//       }
+//     }
 
-    const token = jwt.sign(
-      { id: user._id, role },
-      SECRET_KEY,
-      { expiresIn: "7d" }
-    );
+//     const token = jwt.sign(
+//       { id: user._id, role },
+//       SECRET_KEY,
+//       { expiresIn: "7d" }
+//     );
 
-    res.json({
-      message: "Login successful 🎉",
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        bio: user.bio || "",
-        location: user.location || "",
-        role,
-      },
-    });
-  } catch (err) {
-    res.status(500).json({ message: "Server error ❌" });
-  }
-};
+//     res.json({
+//       message: "Login successful 🎉",
+//       token,
+//       user: {
+//         _id: user._id,
+//         name: user.name,
+//         email: user.email,
+//         phone: user.phone,
+//         bio: user.bio || "",
+//         location: user.location || "",
+//         role,
+//       },
+//     });
+//   } catch (err) {
+//     res.status(500).json({ message: "Server error ❌" });
+//   }
+// };
 
 
-// 🔐 SEND OTP
+// // 🔐 SEND OTP
 export const sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
@@ -173,6 +173,62 @@ export const sendOtp = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    let user = await Attendee.findOne({ email });
+    let role = "attendee";
+
+    if (!user) {
+      user = await Organizer.findOne({ email });
+      role = "organizer";
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found ❌" });
+    }
+
+    if (!user.password) {
+      return res.status(500).json({ message: "Password not set" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Wrong password ❌" });
+    }
+
+    if (role === "organizer" && user.status !== "active") {
+      return res.status(403).json({
+        message: "Organizer not approved yet",
+      });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role },
+      process.env.SECRET_KEY,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      message: "Login successful 🎉",
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role,
+      },
+    });
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
+    res.status(500).json({ message: "Server error ❌" });
+  }
+};
+
+
 
 // ✅ VERIFY OTP
 export const verifyOtp = async (req, res) => {

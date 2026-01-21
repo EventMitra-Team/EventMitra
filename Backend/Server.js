@@ -12,8 +12,8 @@ import authRoutes from "./routes/AuthRoutes.js";
 import subscriptionRoutes from "./routes/subscriptionRoutes.js";
 import adminSubscriptionRoutes from "./routes/adminSubscriptionRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
-import expireOldEvents from "./utils/expireEvents.js";
-import adminRoutes from "./routes/adminRoutes.js";      
+// import expireOldEvents from "./utils/expireEvents.js";
+import adminRoutes from "./routes/adminRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";  
 
 
@@ -32,21 +32,21 @@ console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? "LOADED" : "NOT LOADED");
 
 
 // For DataBase Connection
-// mongoose.connect(MONGO_URI)
-//   .then(() => console.log("MongoDB Connected ✔"))
-//   .catch(() => console.log("MongoDB Error ❌"));
 mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log("MongoDB Connected ✔");
-    expireOldEvents();
-    setInterval(expireOldEvents, 60 * 60 * 1000);
-  })
+  .then(() => console.log("MongoDB Connected ✔"))
   .catch(() => console.log("MongoDB Error ❌"));
+// mongoose.connect(MONGO_URI)
+//   .then(() => {
+//     console.log("MongoDB Connected ✔");
+//     expireOldEvents();
+//     setInterval(expireOldEvents, 60 * 60 * 1000);
+//   })
+//   .catch(() => console.log("MongoDB Error ❌"));
 
 
 
 /* ================= EVENT ROUTES ================= */
-app.use("/api/admin", adminRoutes);
+app.use("/admin", adminRoutes);
 /* ================= EVENT ROUTES ================= */
 app.use("/api/profile", profileRoutes);
 

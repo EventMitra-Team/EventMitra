@@ -9,19 +9,24 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@eventmitra.com";
 export const adminLogin = (req, res) => {
   const { email, password } = req.body;
 
-  if (
-    email !== process.env.ADMIN_EMAIL || 
-    password !== process.env.ADMIN_PASSWORD
-  ) {
-    return res.status(401).json({ message: "Invalid admin credentials ❌" });
+  if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+    return res.status(401).json({
+      message: "Invalid admin credentials ❌",
+    });
   }
 
-  const token = jwt.sign({ role: "admin" }, process.env.SECRET_KEY, {
-    expiresIn: "1d",
-  });
+  const token = jwt.sign(
+    { role: "admin" },
+    process.env.SECRET_KEY,
+    { expiresIn: "1d" }
+  );
 
-  res.json({ message: "Admin login successful ✅", token });
+  res.json({
+    message: "Admin login successful ✅",
+    token,
+  });
 };
+
 
 /* ================= GET PENDING ORGANISERS ================= */
 export const getPendingOrganisers = async (req, res) => {

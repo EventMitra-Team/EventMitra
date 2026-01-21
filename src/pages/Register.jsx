@@ -126,7 +126,7 @@ const [otpVerified, setOtpVerified] = useState(false);
 
     try {
       const response = await fetch(
-  "http://localhost:2511/register",
+  "http://localhost:2511/api/auth/register",
   {
     method: "POST",
     headers: { "Content-Type": "application/json" },

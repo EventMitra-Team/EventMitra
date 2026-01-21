@@ -115,7 +115,7 @@ const AdminOrganisers = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:2511/admin/organisers", {
+      const res = await fetch("http://localhost:2511/admin/organisers/all", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -203,7 +203,7 @@ const AdminOrganisers = () => {
     if (!selectedOrganiser) return;
     try {
       const res = await fetch(
-        `http://localhost:2511/api/admin/organisers/${selectedOrganiser._id}/subscription`,
+        `http://localhost:2511/admin/organisers/${selectedOrganiser._id}/subscription`,
         {
           method: "PUT",
           headers: {
