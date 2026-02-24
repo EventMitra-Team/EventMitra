@@ -20,7 +20,11 @@ import attendeeRoutes from "./routes/attendees.routes.js";
 const app = express();
 
 app.use(cors({
-  origin: "https://event-mitra-p8x6odrrx-shubhamrahangdales-projects.vercel.app",
+  origin: [
+    "http://localhost:5173",
+    "https://eventmitra.vercel.app",
+    "https://event-mitra-p8x6odrrx-shubhamrahangdales-projects.vercel.app"
+  ],
   credentials: true
 }));
 
