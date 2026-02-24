@@ -22,7 +22,7 @@ const FeaturedEvents = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch("http://localhost:2511/api/events");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/events`);
         const data = await res.json();
 
         // show only first 6 events (featured section)

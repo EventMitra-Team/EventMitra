@@ -22,12 +22,15 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://eventmitra.vercel.app",
-    "https://event-mitra-p8x6odrrx-shubhamrahangdales-projects.vercel.app"
+    "https://event-mitra.vercel.app",
+    "https://eventmitra.vercel.app"
   ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
 
+app.options("*", cors());
 app.use(express.json());
 
 
