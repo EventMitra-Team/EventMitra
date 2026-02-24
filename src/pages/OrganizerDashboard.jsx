@@ -609,7 +609,7 @@ const downloadAttendeesPDF = () => {
 
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="h-screen bg-background flex overflow-hidden">
       {/* Sidebar */}
       {/* Mobile Header */}
       <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border h-16 flex items-center justify-between px-4">
@@ -716,7 +716,7 @@ const downloadAttendeesPDF = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto pt-16 md:pt-0">
+      <main className="flex-1 overflow-auto pt-16 md:pt-0 h-screen">
 
         {/* Header */}
         <header className="bg-card border-b border-border px-6 py-4">
