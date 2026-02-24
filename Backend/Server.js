@@ -18,8 +18,14 @@ import attendeeRoutes from "./routes/attendees.routes.js";
 
 
 const app = express();
+
+app.use(cors({
+  origin: "https://event-mitra-p8x6odrrx-shubhamrahangdales-projects.vercel.app",
+  credentials: true
+}));
+
 app.use(express.json());
-app.use(cors());
+
 
 const PORT = process.env.PORT;
 const MONGO_URI = process.env.MONGO_URI;
