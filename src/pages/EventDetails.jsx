@@ -37,7 +37,7 @@ const EventDetails = () => {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const res = await fetch(`http://localhost:2511/api/events/${id}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/events/${id}`);
         if (!res.ok) throw new Error("Event not found");
 
         const data = await res.json();

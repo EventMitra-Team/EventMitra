@@ -115,7 +115,7 @@ const AdminOrganisers = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:2511/admin/organisers/all", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/organisers/all`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -146,7 +146,7 @@ const AdminOrganisers = () => {
   const handleDelete = async (organiser) => {
     try {
       const res = await fetch(
-        `http://localhost:2511/admin/organisers/${organiser._id}`,
+        `${import.meta.env.VITE_API_URL}/admin/organisers/${organiser._id}`,
         {
           method: "DELETE",
           headers: {
@@ -174,7 +174,7 @@ const AdminOrganisers = () => {
   const approveOrganiser = async (id) => {
     try {
       const res = await fetch(
-        `http://localhost:2511/admin/organisers/${id}/approve`,
+        `${import.meta.env.VITE_API_URL}/admin/organisers/${id}/approve`,
         {
           method: "PUT",
           headers: {
@@ -203,7 +203,7 @@ const AdminOrganisers = () => {
     if (!selectedOrganiser) return;
     try {
       const res = await fetch(
-        `http://localhost:2511/admin/organisers/${selectedOrganiser._id}/subscription`,
+        `${import.meta.env.VITE_API_URL}/admin/organisers/${selectedOrganiser._id}/subscription`,
         {
           method: "PUT",
           headers: {

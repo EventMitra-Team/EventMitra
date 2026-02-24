@@ -57,7 +57,7 @@ useEffect(() => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch("http://localhost:2511/api/events");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/events`);
         const data = await res.json();
         setEvents(data);
       } catch (error) {
@@ -79,7 +79,7 @@ useEffect(() => {
     }
 
     try {
-      const res = await fetch("http://localhost:2511/api/bookings/my", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings/my`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

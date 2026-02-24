@@ -62,7 +62,7 @@ const Profile = () => {
     if (!user) return;
 
     const fetchTickets = async () => {
-      const res = await fetch("http://localhost:2511/api/bookings/my", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings/my`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -159,7 +159,7 @@ const Profile = () => {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch("http://localhost:2511/api/account/delete", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/account/delete`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

@@ -34,7 +34,7 @@ const AdminTransactions = () => {
         const token = localStorage.getItem("adminToken");
 
         const res = await fetch(
-          "http://localhost:2511/api/subscriptions/admin/all",
+          `${import.meta.env.VITE_API_URL}/api/subscriptions/admin/all`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

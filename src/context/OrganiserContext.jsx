@@ -15,7 +15,7 @@ export const OrganiserProvider = ({ children }) => {
   const fetchAllOrganisers = async () => {
     try {
       const res = await fetch(
-        "http://localhost:2511/admin/organisers/all",
+        `${import.meta.env.VITE_API_URL}/admin/organisers/all`,
         {
           headers: {
             Authorization: `Bearer ${adminToken}`,

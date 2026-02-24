@@ -49,7 +49,7 @@ const logout = () => {
 const updateProfile = async (data) => {
   const token = localStorage.getItem("token");
 
-  const res = await fetch("http://localhost:2511/api/profile/update", {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/profile/update`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

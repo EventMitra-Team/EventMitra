@@ -108,7 +108,7 @@ const [expandedAttendees, setExpandedAttendees] = useState({});
     const token = localStorage.getItem("token");
     try {
       const res = await fetch(
-        `http://localhost:2511/api/bookings/event/${event._id}`,
+        `${import.meta.env.VITE_API_URL}/api/bookings/event/${event._id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -158,7 +158,7 @@ const [expandedAttendees, setExpandedAttendees] = useState({});
 
     try {
       const res = await fetch(
-        "http://localhost:2511/api/subscriptions/create-order",
+        `${import.meta.env.VITE_API_URL}/api/subscriptions/create-order`,
         {
           method: "POST",
           headers: {
@@ -182,7 +182,7 @@ const [expandedAttendees, setExpandedAttendees] = useState({});
 
         handler: async function (response) {
           const verifyRes = await fetch(
-            "http://localhost:2511/api/subscriptions/verify",
+            `${import.meta.env.VITE_API_URL}/api/subscriptions/verify`,
             {
               method: "POST",
               headers: {
@@ -259,7 +259,7 @@ const [expandedAttendees, setExpandedAttendees] = useState({});
 
       try {
         const res = await fetch(
-          `http://localhost:2511/api/events/organizer/${organizerId}`,
+          `${import.meta.env.VITE_API_URL}/api/events/organizer/${organizerId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -288,7 +288,7 @@ const [expandedAttendees, setExpandedAttendees] = useState({});
 
       try {
         const res = await fetch(
-          "http://localhost:2511/api/organizer/me",
+          `${import.meta.env.VITE_API_URL}/api/organizer/me`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -403,7 +403,7 @@ const [expandedAttendees, setExpandedAttendees] = useState({});
     const token = localStorage.getItem("token");
 
     try {
-      await fetch(`http://localhost:2511/api/events/${eventId}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/events/${eventId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -431,7 +431,7 @@ const [expandedAttendees, setExpandedAttendees] = useState({});
 
     try {
       const res = await fetch(
-        `http://localhost:2511/api/events/${eventId}/status`,
+        `${import.meta.env.VITE_API_URL}/api/events/${eventId}/status`,
         {
           method: "PATCH",
           headers: {
@@ -469,8 +469,8 @@ const [expandedAttendees, setExpandedAttendees] = useState({});
     const token = localStorage.getItem("token");
 
     const url = editingEvent
-      ? `http://localhost:2511/api/events/${editingEvent._id}`
-      : "http://localhost:2511/api/events";
+      ? `${import.meta.env.VITE_API_URL}/api/events/${editingEvent._id}`
+      : `${import.meta.env.VITE_API_URL}/api/events`;
 
     const method = editingEvent ? "PUT" : "POST";
 
@@ -524,7 +524,7 @@ const [expandedAttendees, setExpandedAttendees] = useState({});
 
     try {
       const res = await fetch(
-        `http://localhost:2511/api/events/${eventId}/submit`,
+        `${import.meta.env.VITE_API_URL}/api/events/${eventId}/submit`,
         {
           method: "PATCH",
           headers: {

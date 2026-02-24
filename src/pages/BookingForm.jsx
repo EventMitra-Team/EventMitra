@@ -41,7 +41,7 @@ const BookingForm = () => {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const res = await fetch(`http://localhost:2511/api/events/${id}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/events/${id}`);
         if (!res.ok) throw new Error("Event not found");
         const data = await res.json();
         setEvent(data);
@@ -129,7 +129,7 @@ const BookingForm = () => {
     }
 
     if (event.price === 0) {
-      const res = await fetch("http://localhost:2511/api/bookings", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -167,7 +167,7 @@ const BookingForm = () => {
     }
 
     const orderRes = await fetch(
-      "http://localhost:2511/api/subscriptions/create-order",
+      `${import.meta.env.VITE_API_URL}/api/subscriptions/create-order`,
       {
         method: "POST",
         headers: {
@@ -198,7 +198,7 @@ const BookingForm = () => {
       description: event.title,
       order_id: order.id,
       handler: async function (response) {
-        const bookingRes = await fetch("http://localhost:2511/api/bookings", {
+        const bookingRes = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
